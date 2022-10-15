@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "greetsvc_lib",
+    srcs = ["main.go"],
+    importpath = "github.com/arianics/bazel-buf-demo/src/services/greetsvc",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//src/protos/greetapis/greet/v1:greet",
+        "//src/protos/greetapis/greet/v1:greet_connect_go",
+        "@com_github_bufbuild_connect_go//:connect-go",
+        "@org_golang_x_net//http2",
+        "@org_golang_x_net//http2/h2c",
+    ],
+)
+
+go_binary(
+    name = "greetsvc",
+    embed = [":greetsvc_lib"],
+    visibility = ["//visibility:public"],
+)

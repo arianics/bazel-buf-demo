@@ -14,6 +14,7 @@ gazelle(
         "-prune",
     ],
     command = "update-repos",
+    gazelle = ":gazelle-buf",
 )
 
 gazelle(

@@ -4,11 +4,10 @@ package greet.v1;
 
 option go_package = "github.com/arianics/bazel-buf-demo/src/protos/greetapis/greet/v1;greetv1";
 
+message GreetRequest { string name = 1; }
+
+message GreetResponse { string greeting = 1; }
+
 service GreetService {
-  // SayHello says hello to given name
-  rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {}
+  rpc Greet(GreetRequest) returns (GreetResponse) {}
 }
-
-message SayHelloRequest { string name = 1; }
-
-message SayHelloResponse { string message = 1; }

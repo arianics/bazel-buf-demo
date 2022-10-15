@@ -2,6 +2,15 @@ load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 load("@rules_buf//buf:defs.bzl", "buf_lint_test")
+load("@io_bazel_rules_go//proto:compiler.bzl", "go_proto_compiler")
+load(
+    "@io_bazel_rules_go//proto/wkt:well_known_types.bzl",
+    # "@io_bazel_rules_go//proto/wkt:well_known_types.bzl",
+    # "GOGO_WELL_KNOWN_TYPE_REMAPS",
+    # "PROTO_RUNTIME_DEPS",
+    "WELL_KNOWN_TYPES_APIV2",
+    # "WELL_KNOWN_TYPE_RULES",
+)
 
 proto_library(
     name = "greetv1_proto",
@@ -29,4 +38,34 @@ buf_lint_test(
     name = "greetv1_proto_lint",
     config = "//src/protos/greetapis:buf.yaml",
     targets = [":greetv1_proto"],
+)
+
+# generate connect-go
+go_proto_compiler(
+    name = "connect-go",
+    plugin = "@com_github_bufbuild_connect_go//cmd/protoc-gen-connect-go",
+    suffix = ".connect.go",
+    visibility = ["//visibility:public"],
+    deps = WELL_KNOWN_TYPES_APIV2 + [
+        "@com_github_bufbuild_connect_go//:go_default_library",
+        ":greetv1_go_proto",
+    ],
+)
+
+go_proto_library(
+    name = "greetv1_connect_go",
+    compilers = [
+        ":connect-go",
+    ],
+    importpath = "github.com/arianics/bazel-buf-demo/src/protos/greetapis/greet/v1;greetv1",  # TODO: Needs review `;greetv1` in import path places the files in `v1;greetv1` dir in bazel-out.
+    proto = ":greetv1_proto",
+    visibility = ["//visibility:public"],
+    deps = [":greet"],
+)
+
+go_library(
+    name = "greet_connect_go",
+    embed = [":greetv1_connect_go"],
+    importpath = "github.com/arianics/bazel-buf-demo/src/protos/greetapis/greet/v1/greetv1connect",
+    visibility = ["//visibility:public"],
 )
